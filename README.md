@@ -1,5 +1,5 @@
 # Learning operating system development using Linux kernel and Raspberry Pi
-fork from : https://github.com/s-matyukevich/raspberry-pi-os.git
+
 ref  from : https://github.com/s-matyukevich/raspberry-pi-os.git
 
 This repository contains a step-by-step guide that teaches how to create a simple operating system (OS) kernel from scratch. I call this OS Raspberry Pi OS or just RPi OS. The RPi OS source code is largely based on [Linux kernel](https://github.com/torvalds/linux), but the OS has very limited functionality and supports only [Raspberry PI 3](https://www.raspberrypi.org/products/raspberry-pi-3-model-b/). 
