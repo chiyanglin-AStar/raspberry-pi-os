@@ -62,11 +62,13 @@ I see "alex" on host.
 on host:
 #echo "alex" > /dev/pts88
 
-#### --------------------------------
+#### for uart1 --------------------------------
 
 qemu-system-aarch64 -M raspi3 -kernel kernel8.img -nographic -serial null -monitor stdio 
 
-#### --------------------------------
+qemu-system-aarch64 -M raspi3 -kernel kernel8_uart0.img -serial null -serial file:s_out -nographic
+
+#### for uart1 --------------------------------
 
 qemu-system-aarch64 -M raspi3 -kernel kernel8.img -nographic -serial telnet:localhost:4321,server,nowait
 
