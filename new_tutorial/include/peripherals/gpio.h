@@ -27,11 +27,23 @@
 
 #define GPPUDCLK1       (PBASE+0x0020009C)
 
+/* PL011 UART0 registers */
+#define UART0_DR        (PBASE+0x00201000)
+#define UART0_FR        (PBASE+0x00201018)
+#define UART0_IBRD      (PBASE+0x00201024)
+#define UART0_FBRD      (PBASE+0x00201028)
+#define UART0_LCRH      (PBASE+0x0020102C)
+#define UART0_CR        (PBASE+0x00201030)
+#define UART0_IMSC      (PBASE+0x00201038)
+#define UART0_ICR       (PBASE+0x00201044)
+
+
+
 /*
 in https://github.com/bztsrc/raspi3-tutorial
 03_uart1  uart.c
 */
-#if 0 // for reference 
+#if 0 // for reference
 /* Auxilary mini UART registers */
 #define AUX_ENABLE      ((volatile unsigned int*)(PBASE+0x00215004))
 #define AUX_MU_IO       ((volatile unsigned int*)(PBASE+0x00215040))
