@@ -4,7 +4,7 @@
 #if 1
 void uart_send ( char c )
 {
-	while(1) {
+	while(1) {		
 		if(get32(AUX_MU_LSR_REG)&0x20)
 			break;
 	}
@@ -111,23 +111,23 @@ void uart_init()
     register unsigned int r;
 
     /* initialize UART */
-    *AUX_ENABLE |=1;       // enable UART1, AUX mini uart
-    *AUX_MU_CNTL = 0;
-    *AUX_MU_LCR = 3;       // 8 bits
-    *AUX_MU_MCR = 0;
-    *AUX_MU_IER = 0;
-    *AUX_MU_IIR = 0xc6;    // disable interrupts
-    *AUX_MU_BAUD = 270;    // 115200 baud
+    *((volatile unsigned int*)AUX_ENABLES)    |= 1;       // enable UART1, AUX mini uart
+    *((volatile unsigned int*)AUX_MU_CNTL_REG)  = 0;
+    *((volatile unsigned int*)AUX_MU_LCR_REG)   = 3;       // 8 bits
+    *((volatile unsigned int*)AUX_MU_MCR_REG)   = 0;
+    *((volatile unsigned int*)AUX_MU_IER_REG)   = 0;
+    *((volatile unsigned int*)AUX_MU_IIR_REG)   = 0xc6;    // disable interrupts
+    *((volatile unsigned int*)AUX_MU_BAUD_REG)  = 270;    // 115200 baud
     /* map UART1 to GPIO pins */
-    r=*GPFSEL1;
+    r=*((volatile unsigned int*)GPFSEL1);
     r&=~((7<<12)|(7<<15)); // gpio14, gpio15
     r|=(2<<12)|(2<<15);    // alt5
-    *GPFSEL1 = r;
-    *GPPUD = 0;            // enable pins 14 and 15
+    *((volatile unsigned int*)GPFSEL1) = r;
+    *((volatile unsigned int*)GPPUD) 		   = 0;            // enable pins 14 and 15
     r=150; while(r--) { asm volatile("nop"); }
-    *GPPUDCLK0 = (1<<14)|(1<<15);
+    *((volatile unsigned int*)GPPUDCLK0) 	   = (1<<14)|(1<<15);
     r=150; while(r--) { asm volatile("nop"); }
-    *GPPUDCLK0 = 0;        // flush GPIO setup
-    *AUX_MU_CNTL = 3;      // enable Tx, Rx
+    *((volatile unsigned int*)GPPUDCLK0)       = 0;        // flush GPIO setup
+    *((volatile unsigned int*)AUX_MU_CNTL_REG) = 3;      // enable Tx, Rx
 }
 #endif
