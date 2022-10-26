@@ -152,3 +152,9 @@ void uart_init ( void )
 	put32(AUX_MU_CNTL_REG,3);               //Finally, enable transmitter and receiver
 #endif // for UART1 to UART0 init compiler control
 }
+
+// This function is required by printf function
+void putc ( void* p, char c)
+{
+	uart_send(c);
+}
