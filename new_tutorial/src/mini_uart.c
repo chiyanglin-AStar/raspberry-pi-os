@@ -1,12 +1,12 @@
 #include "utils.h"
 #include "peripherals/mini_uart.h"
 #include "peripherals/gpio.h"
-//#define UART__0 1
+#define UART__1 0
 
 /*
 https://github.com/bztsrc/raspi3-tutorial version
 */
-#if 1
+#if UART__1 
 void uart_send ( char c )
 {
 	while(1) {
