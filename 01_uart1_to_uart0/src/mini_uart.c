@@ -1,8 +1,12 @@
 #include "utils.h"
 #include "peripherals/mini_uart.h"
 #include "peripherals/gpio.h"
-#define UART__0 1
-#if 0
+#define UART__1 0 // default to use uart0
+
+/*
+https://github.com/bztsrc/raspi3-tutorial version
+*/
+#if UART__1 
 void uart_send ( char c )
 {
 	while(1) {
@@ -11,42 +15,64 @@ void uart_send ( char c )
 	}
 	put32(AUX_MU_IO_REG,c);
 }
-#else
-/*
-https://github.com/bztsrc/raspi3-tutorial version
-*/
-#if 0
-void uart_send(unsigned int c) {
-    /* wait until we can send */
-    do{asm volatile("nop");}while(!(*((volatile unsigned int*)AUX_MU_LSR_REG) &0x20));
-    /* write the character to the buffer */
-    *((volatile unsigned int*)AUX_MU_IO_REG)=c;
+
+char uart_recv ( void )
+{
+	while(1) {
+		if(get32(AUX_MU_LSR_REG)&0x01)
+			break;
+	}
+	return(get32(AUX_MU_IO_REG)&0xFF);
 }
-#else  // for UART0
+
+void uart_send_string(char* str)
+{
+	for (int i = 0; str[i] != '\0'; i ++) {
+		uart_send((char)str[i]);
+	}
+}
+
+void uart_init ( void )
+{
+	unsigned int selector;
+
+	selector = get32(GPFSEL1);
+	selector &= ~(7<<12);                   // clean gpio14
+	selector |= 2<<12;                      // set alt5 for gpio14
+	selector &= ~(7<<15);                   // clean gpio15
+	selector |= 2<<15;                      // set alt5 for gpio15
+	put32(GPFSEL1,selector);
+
+	put32(GPPUD,0);
+	delay(150);
+	put32(GPPUDCLK0,(1<<14)|(1<<15));
+	delay(150);
+	put32(GPPUDCLK0,0);
+
+	put32(AUX_ENABLES,1);                   //Enable mini uart (this also enables access to its registers)
+	put32(AUX_MU_CNTL_REG,0);               //Disable auto flow control and disable receiver and transmitter (for now)
+	put32(AUX_MU_IER_REG,0);                //Disable receive and transmit interrupts
+	put32(AUX_MU_LCR_REG,3);                //Enable 8 bit mode
+	put32(AUX_MU_MCR_REG,0);                //Set RTS line to be always high
+	put32(AUX_MU_BAUD_REG,270);             //Set baud rate to 115200
+
+	put32(AUX_MU_CNTL_REG,3);               //Finally, enable transmitter and receiver
+}
+
+
+// This function is required by printf function
+void putc ( void* p, char c)
+{
+	uart_send(c);
+}
+#else
 void uart_send(unsigned int c) {
     /* wait until we can send */
     do{asm volatile("nop");}while(*((volatile unsigned int*)UART0_FR) & 0x20);
     /* write the character to the buffer */
     *((volatile unsigned int*)UART0_DR)=c;
 }
-#endif 
-#endif
 
-#if 0
-/*
-https://github.com/bztsrc/raspi3-tutorial version
-*/
-//char uart_getc() {
-char uart_recv(void){
-    char r;
-    /* wait until something is in the buffer */
-    do{asm volatile("nop");}while(!(*((volatile unsigned int*)AUX_MU_LSR_REG) & 0x01));
-    /* read it and return */
-    r=(char)(*((volatile unsigned int*) AUX_MU_IO_REG));
-    /* convert carriage return to newline */
-    return r=='\r'?'\n':r;
-}
-#else // UART0
 //char uart_getc() {
 char uart_recv(void){
     char r;
@@ -57,12 +83,10 @@ char uart_recv(void){
     /* convert carrige return to newline */
     return r=='\r'?'\n':r;
 }
-#endif
 
 /*
 https://github.com/bztsrc/raspi3-tutorial version
 */
-//void uart_puts(char *s) {
 void uart_send_string(char* s){
     while(*s) {
         /* convert newline to carriage return + newline */
@@ -71,32 +95,9 @@ void uart_send_string(char* s){
         uart_send(*s++);
     }
 }
-#if 0 
-void uart_puts(char *s) {
-    while(*s) {
-        /* convert newline to carrige return + newline */
-        if(*s=='\n')
-            uart_send('\r');
-        uart_send(*s++);
-    }
-}
-
-void uart_hex(unsigned int d) {
-    unsigned int n;
-    int c;
-    for(c=28;c>=0;c-=4) {
-        // get highest tetrad
-        n=(d>>c)&0xF;
-        // 0-9 => '0'-'9', 10-15 => 'A'-'F'
-        n+=n>9?0x37:0x30;
-        uart_send(n);
-    }
-}
-#endif 
 
 void uart_init ( void )
 {
-#if 1  // For UART0
 	register unsigned int r;
 	/* initialize UART */
 	*((volatile unsigned int*)UART0_CR) = 0;         // turn off UART0
@@ -117,38 +118,11 @@ void uart_init ( void )
 	*((volatile unsigned int*)UART0_FBRD) = 0xB;
 	*((volatile unsigned int*)UART0_LCRH) = 0x7<<4;    // 8n1, enable FIFOs
 	*((volatile unsigned int*)UART0_CR)   = 0x301;     // enable Tx, Rx, UART	
-
-#else // for UART1 to UART0 init compiler control 
-	unsigned int selector;
-   #if 0
-	//  UART1 map to GPIO part
-	selector = get32(GPFSEL1);
-	selector &= ~(7<<12);                   // clean gpio14
-	selector |= 2<<12;                      // set alt5 for gpio14
-	selector &= ~(7<<15);                   // clean gpio15
-	selector |= 2<<15;                      // set alt5 for gpio15
-	put32(GPFSEL1,selector);
-	#else
-	/* map UART1 to GPIO pins */
-	selector = get32(GPFSEL1);
-	selector &= ~((7<<12)|(7<<15)); // gpio14, gpio15
-	selector |=(2<<12)|(2<<15);    // alt5
-	put32(GPFSEL1,selector);
-
-	#endif
-	put32(GPPUD,0);
-	delay(150);
-	put32(GPPUDCLK0,(1<<14)|(1<<15));
-	delay(150);
-	put32(GPPUDCLK0,0);
-
-	put32(AUX_ENABLES,1);                   //Enable mini uart (this also enables access to its registers)
-	put32(AUX_MU_CNTL_REG,0);               //Disable auto flow control and disable receiver and transmitter (for now)
-	put32(AUX_MU_IER_REG,0);                //Disable receive and transmit interrupts
-	put32(AUX_MU_LCR_REG,3);                //Enable 8 bit mode
-	put32(AUX_MU_MCR_REG,0);                //Set RTS line to be always high
-	put32(AUX_MU_BAUD_REG,270);             //Set baud rate to 115200
-
-	put32(AUX_MU_CNTL_REG,3);               //Finally, enable transmitter and receiver
-#endif // for UART1 to UART0 init compiler control
 }
+
+// This function is required by printf function
+void putc ( void* p, char c)
+{
+	uart_send(c);
+}
+#endif 
