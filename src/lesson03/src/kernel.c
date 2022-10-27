@@ -7,8 +7,12 @@
 void kernel_main(void)
 {
 	uart_init();
+	uart_send_string("after uart init ,  send string : Hello, world!\r\n");
 	init_printf(0, putc);
+	printf("after printf , hello world ");
 	irq_vector_init();
+	//uart_send_string("after uart init ,  send string : Hello, world!\r\n");
+
 	timer_init();
 	enable_interrupt_controller();
 	enable_irq();
