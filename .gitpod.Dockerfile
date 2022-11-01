@@ -10,4 +10,4 @@ RUN sudo apt-get -q update && \
     sudo rm -rf /var/lib/apt/lists/*
 
 # Install wxPython
-RUN pip3 install -U -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-18.04/ wxPython
+#RUN pip3 install -U -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-18.04/ wxPython
