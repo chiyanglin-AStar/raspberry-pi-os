@@ -1,7 +1,7 @@
 #include "utils.h"
 #include "peripherals/mini_uart.h"
 #include "peripherals/gpio.h"
-#define UART__1 0 // default to use uart0
+#define UART__1 1 // default to use uart1 
 
 /*
 https://github.com/bztsrc/raspi3-tutorial version
