@@ -9,3 +9,4 @@ SECTIONS
 	.bss : { *(.bss*) } 
 	bss_end = .;
 }
+bss_size = (bss_end - bss_begin)>>2;
