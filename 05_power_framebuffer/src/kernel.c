@@ -12,11 +12,11 @@ void kernel_main(void)
 	mbox_fun();
     random_demo();
     timer_init_delay_demo();
-
+#if 1
     lfb_init();
     // display a pixmap
     lfb_showpicture();
-    
+#endif   
 	while (1) {
         #if 0
 		uart_send(uart_recv());
