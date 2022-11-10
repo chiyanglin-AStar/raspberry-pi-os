@@ -6,13 +6,23 @@ void timer_init_delay_demo(void);
 
 void kernel_main(void)
 {
+    char c;
 	uart_init();
 	uart_send_string("Hello, world!\r\n");
 	mbox_fun();
     random_demo();
     timer_init_delay_demo();
 	while (1) {
+        #if 0
 		uart_send(uart_recv());
+        #else 
+        uart_send_string(" 1 - power off\n 2 - reset\nChoose one: ");
+        c=uart_recv();
+        uart_send(c);
+        uart_send_string("\n\n");
+        if(c=='1') power_off();
+        if(c=='2') reset();
+        #endif 
 	}
 }
 

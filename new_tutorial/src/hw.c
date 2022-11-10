@@ -113,3 +113,62 @@ void wait_msec_st(unsigned int n)
     // system timer, and returning constant zero would mean infinite loop
     if(t) while(get_system_timer() < t+n);
 }
+
+//  Power functions ---------------------------------------------
+/*  Shutdown the board */
+void power_off()
+{
+    unsigned long r;
+
+    // power off devices one by one
+    for(r=0;r<16;r++) {
+        mbox[0]=8*4;
+        mbox[1]=MBOX_REQUEST;
+        mbox[2]=MBOX_TAG_SETPOWER; // set power state
+        mbox[3]=8;
+        mbox[4]=8;
+        mbox[5]=(unsigned int)r;   // device id
+        mbox[6]=0;                 // bit 0: off, bit 1: no wait
+        mbox[7]=MBOX_TAG_LAST;
+        mbox_call(MBOX_CH_PROP);
+    }
+
+    // power off gpio pins (but not VCC pins)
+    put32(GPFSEL0,0);
+    put32(GPFSEL1,0);
+    put32(GPFSEL2,0);
+    put32(GPFSEL3,0);
+    put32(GPFSEL4,0);
+    put32(GPFSEL5,0);
+    put32(GPPUD,0);
+        
+    wait_cycles(150);
+    put32(GPPUDCLK0,0xffffffff);
+    put32(GPPUDCLK1,0xffffffff);
+    
+    wait_cycles(150);
+    // flush GPIO setup
+    put32(GPPUDCLK0,0);
+    put32(GPPUDCLK1,0);
+    
+
+    // power off the SoC (GPU + CPU)
+    r = get32(PM_RSTS); r &= ~0xfffffaaa;
+    r |= 0x555;    // partition 63 used to indicate halt
+    put32(PM_RSTS,PM_WDOG_MAGIC | r);
+    put32(PM_WDOG,PM_WDOG_MAGIC | 10);
+    put32(PM_RSTC,PM_WDOG_MAGIC | PM_RSTC_FULLRST);
+}
+
+
+/*  Reboot  */
+void reset()
+{
+    unsigned int r;
+    // trigger a restart by instructing the GPU to boot from partition 0
+    r = get32(PM_RSTS); r &= ~0xfffffaaa;
+    put32(PM_RSTS,PM_WDOG_MAGIC | r);   // boot from partition 0
+    put32(PM_WDOG,PM_WDOG_MAGIC | 10);
+    put32(PM_RSTC,PM_WDOG_MAGIC | PM_RSTC_FULLRST);
+}
+// Power ---------------------------------------------------

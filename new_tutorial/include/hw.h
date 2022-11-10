@@ -25,6 +25,13 @@
 #define SYSTMR_HI        (PBASE+0x00003008)
 // Timer mmio -------------------------------------------
 
+//  Power mmio definition -------------------------------
+#define PM_RSTC         (PBASE+0x0010001c)
+#define PM_RSTS         (PBASE+0x00100020)
+#define PM_WDOG         (PBASE+0x00100024)
+// Power mmio --------------------------------------------
+
+
 //  mbox operation defintion
 #define MBOX_REQUEST    0
 
@@ -41,8 +48,18 @@
 
 /* tags */
 #define MBOX_TAG_GETSERIAL      0x10004
+#define MBOX_TAG_SETPOWER       0x28001
+#define MBOX_TAG_SETCLKRATE     0x38002
 #define MBOX_TAG_LAST           0
+
 //  mbox openration ---------------------------------------
+
+/* Power Mask definition */
+#define PM_WDOG_MAGIC   0x5a000000
+#define PM_RSTC_FULLRST 0x00000020
+// power --------------------------------------------------
+
+
 
 /*  mbox data struction and function declare */
 /* a properly aligned buffer */
@@ -62,3 +79,8 @@ void wait_msec(unsigned int n);
 unsigned long get_system_timer();
 void wait_msec_st(unsigned int n);
 //  Timer and Delay ---------------------------------------- 
+
+/*  Power function declare */
+void power_off();
+void reset();
+//  Power --------------------------------------------------
