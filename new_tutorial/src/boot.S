@@ -4,20 +4,28 @@
 
 .globl _start
 _start:
-	mrs	x0, mpidr_el1		
-	and	x0, x0,#0xFF		// Check processor id
-	cbz	x0, master		// Hang for all non-primary CPU
-	b	proc_hang
+    // read cpu id, stop slave cores
+    mrs     x1, mpidr_el1
+    and     x1, x1, #3
+    cbz     x1, 2f
+    // cpu id > 0, stop
+1:  wfe
+    b       1b
+2:  // cpu id == 0
 
-proc_hang: 
-	b 	proc_hang
+    // set top of stack just before our code (stack grows to a lower address per AAPCS64)
+    ldr     x1, =_start
+    mov     sp, x1
 
-master:
-	adr	x0, bss_begin
-	adr	x1, bss_end
-	sub	x1, x1, x0
-	bl 	memzero
+    // clear bss
+    ldr     x1, =bss_begin
+    ldr     w2, =bss_size
+3:  cbz     w2, 4f
+    str     xzr, [x1], #8
+    sub     w2, w2, #1
+    cbnz    w2, 3b
 
-	mov	sp, #LOW_MEMORY 
-	bl	kernel_main
-	b 	proc_hang		// should never come here
+    // jump to C code, should not return
+4:  bl      kernel_main
+    // for failsafe, halt this core too
+    b       1b
