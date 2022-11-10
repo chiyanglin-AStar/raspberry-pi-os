@@ -6,6 +6,7 @@ void kernel_main(void)
 	uart_init();
 	uart_send_string("Hello, world!\r\n");
 	mbox_fun();
+    random_demo();
 	while (1) {
 		uart_send(uart_recv());
 	}
@@ -33,4 +34,12 @@ void mbox_fun(void){
     } else {
         uart_send_string("Unable to query serial!\n");
     }
+}
+
+void random_demo(void){
+    rand_init();
+    
+    uart_send_string("Here goes a random number: ");
+    uart_hex(rand(0,4294967295));
+    uart_send_string("\n");
 }

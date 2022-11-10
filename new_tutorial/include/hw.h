@@ -13,6 +13,14 @@
 #define MBOX_EMPTY      0x40000000
 //  mbox mmio ------------------------------------------
 
+/* random number generator mmio definition */
+#define RNG_CTRL        (PBASE+0x00104000)
+#define RNG_STATUS      (PBASE+0x00104004)
+#define RNG_DATA        (PBASE+0x00104008)
+#define RNG_INT_MASK    (PBASE+0x00104010)
+// random number generator mmio -------------------------
+
+
 //  mbox operation defintion
 #define MBOX_REQUEST    0
 
@@ -32,11 +40,14 @@
 #define MBOX_TAG_LAST           0
 //  mbox openration ---------------------------------------
 
-
-
 /*  mbox data struction and function declare */
 /* a properly aligned buffer */
 extern volatile unsigned int mbox[36];
 
 int mbox_call(unsigned char ch);
 //  mbox data struction and function -----------------------
+
+/*  random function declare  */
+void rand_init();
+unsigned int rand(unsigned int min, unsigned int max);
+//  random -------------------------------------------------

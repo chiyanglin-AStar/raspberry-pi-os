@@ -29,3 +29,36 @@ int mbox_call(unsigned char ch)
     }
     return 0;
 }
+
+/*  Random function declare */
+/**
+ * Initialize the RNG
+ */
+void rand_init()
+{
+    unsigned int r;
+    
+    r = get32(RNG_STATUS);
+    r = 0x40000;
+    put32(RNG_STATUS,r);
+    // mask interrupt
+    r = get32(RNG_INT_MASK);
+    r |= 1;
+    put32(RNG_INT_MASK,r);
+    
+    // enable
+    r = get32(RNG_CTRL);
+    r |= 1;
+    put32(RNG_CTRL,r);    
+}
+
+/**
+ * Return a random number between [min..max]
+ */
+unsigned int rand(unsigned int min, unsigned int max)
+{
+    // may need to wait for entropy: bits 24-31 store how many words are
+    // available for reading; require at least one
+    while(!(get32(RNG_STATUS)>>24)) asm volatile("nop");
+    return get32(RNG_DATA)  % (max-min) + min;
+}
