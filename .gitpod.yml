@@ -5,7 +5,7 @@ image:
 
 tasks:
   - init: echo 'Raspberry Pi Embedded System Tutorial ' # runs during prebuild
-    command: echo 'arm linux kernel build tutorial' && sudo apt update && sudo apt-get -y install gcc-aarch64-linux-gnu coreutils texi2html make gcc  binutils-aarch64-linux-gnu g++ mercurial autoconf automake groff curl lzop asciidoc u-boot-tools gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat cpio xz-utils debianutils iputils-ping liblz4-tool zstd qemu-system-aarch64 
+    command: echo 'arm linux kernel build tutorial' && sudo apt update && sudo apt-get -y install gcc-aarch64-linux-gnu && sudo apt-get -y install coreutils texi2html make gcc  binutils-aarch64-linux-gnu g++ mercurial autoconf automake groff curl lzop asciidoc u-boot-tools gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat cpio xz-utils debianutils iputils-ping liblz4-tool zstd qemu-system-aarch64 
 
 # CodingCoffee  C/C++ GitPod Examples more courses : http://www.codingcoffee.org
 ports:
