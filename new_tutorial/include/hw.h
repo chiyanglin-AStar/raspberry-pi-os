@@ -183,7 +183,10 @@ void lfb_init();
 void lfb_showpicture();
 // frame buffer --------------------------------------------
 
-/* SD and emmc control */
+/* SD 、 emmc and FAT control */
 int sd_init();
 int sd_readblock(unsigned int lba, unsigned char *buffer, unsigned int num);
-// SD and emmc ----------------------------------------------
+
+int fat_getpartition(void);
+void fat_listdirectory(void);
+// SD and emmc and FAT  ----------------------------------------------
